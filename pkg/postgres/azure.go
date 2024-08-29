@@ -72,15 +72,19 @@ func (azpg *azurepg) DropRole(role, newOwner, database string, logger logr.Logge
 			}
 			return err
 		}
-		err = azpg.pg.GrantRole(newOwner, azpg.user)
-		if err != nil && err.(*pq.Error).Code != "0LP01" {
-			if err.(*pq.Error).Code == "42704" {
-				// The group role does not exist, no point of granting roles
-				logger.Info(fmt.Sprintf("not granting %s to %s as %s does not exist", role, newOwner, newOwner))
-				return nil
+
+		if newOwner != azpg.user {
+			err = azpg.pg.GrantRole(newOwner, azpg.user)
+			if err != nil && err.(*pq.Error).Code != "0LP01" {
+				if err.(*pq.Error).Code == "42704" {
+					// The group role does not exist, no point of granting roles
+					logger.Info(fmt.Sprintf("not granting %s to %s as %s does not exist", role, newOwner, newOwner))
+					return nil
+				}
+				return err
 			}
-			return err
 		}
+
 		defer azpg.pg.RevokeRole(newOwner, azpg.pg.user)
 
 		return azpg.pg.DropRole(role, newOwner, database, logger)
