@@ -30,13 +30,6 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
@@ -45,7 +38,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/movetokube/postgres-operator:latest
-            ghcr.io/movetokube/postgres-operator:${{ env.DOCKER_TAG }}
-            movetokube/postgres-operator:${{ env.DOCKER_TAG }}
-            movetokube/postgres-operator:latest
+            wadhah101/postgres-operator:${{ env.DOCKER_TAG }}
